@@ -27,7 +27,11 @@ impl Vec3 {
     }
 
     pub fn norm(&self) -> f64 {
-        (self.x.powi(2) + self.y.powi(2) + self.z.powi(2)).sqrt()
+        self.squared_norm().sqrt()
+    }
+
+    pub fn squared_norm(&self) -> f64 {
+        self.x.powi(2) + self.y.powi(2) + self.z.powi(2)
     }
 
     pub fn normalize(&self) -> Vec3 {

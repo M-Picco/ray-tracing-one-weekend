@@ -21,15 +21,15 @@ fn hit_sphere(center: &Point3, rad: f64, ray: &Ray) -> f64 {
     let dir = ray.dir();
     let oc = ray.origin() - *center;
 
-    let a = dir.dot(&dir);
-    let b = 2.0 * oc.dot(&dir);
-    let c = oc.dot(&oc) - rad * rad;
-    let discriminant = b*b - 4.0*a*c;
+    let a = dir.squared_norm();
+    let half_b = oc.dot(&dir);
+    let c = oc.squared_norm() - rad * rad;
+    let discriminant = half_b*half_b - a*c;
 
     if discriminant < 0.0 {
         return -1.0;
     } else {
-        return (-b - discriminant.sqrt()) / (2.0 * a)
+        return (-half_b - discriminant.sqrt()) / a
     }
 }
 
