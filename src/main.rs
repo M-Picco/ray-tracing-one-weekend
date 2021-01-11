@@ -8,25 +8,46 @@ use ray::Ray;
 use vec3::Vec3;
 use point3::Point3;
 
-fn hit_sphere(center: &Point3, rad: f64, ray: &Ray) -> bool {
+/**
+ * Surge de calcular el "t" tal que el rayo incide en la esfera
+ * La ecuación es: (P(t) - C) * (P(t) - C) = r**2
+ * Donde: 
+ *  - P(t) = A + t * b, A el origen del rayo y b el vector direccion
+ *  - C el centro de la esfera
+ *  - r el radio de la esfera
+ * Expandiendo la ecuación original se llega a una cuadrática 
+*/
+fn hit_sphere(center: &Point3, rad: f64, ray: &Ray) -> f64 {
     let dir = ray.dir();
     let oc = ray.origin() - *center;
 
     let a = dir.dot(&dir);
     let b = 2.0 * oc.dot(&dir);
     let c = oc.dot(&oc) - rad * rad;
-    let discriminant = b*b - 4.0*a*c; // cuadrática
+    let discriminant = b*b - 4.0*a*c;
 
-    discriminant > 0.0
+    if discriminant < 0.0 {
+        return -1.0;
+    } else {
+        return (-b - discriminant.sqrt()) / (2.0 * a)
+    }
 }
 
+/**
+ * Determina el color del pixel en base a la incidencia del rayo en la esfera
+ *  - Si no incide, se utiliza el gradiente de azul a blanco.
+ *  - Si incide, se calcula la normal a la superficie en el punto donde incide el rayo
+ * y se arma un gradiente en base a las componentes de la normal
+*/
 fn ray_color(ray: &Ray) -> Color {
-    if hit_sphere(&Point3::new(0.0, 0.0, -1.0), 0.5, ray) {
-        return Color::new(1.0, 0.0, 0.0);
+    let mut t = hit_sphere(&Point3::new(0.0, 0.0, -1.0), 0.5, ray);
+    if t > 0.0 { // incide!
+        let normal = (ray.at(t) - Vec3::new(0.0, 0.0, -1.0)).normalize();
+        return Color::new(normal.x()+1.0, normal.y()+1.0, normal.z()+1.0) * 0.5;
     }
 
     let dir = ray.dir().normalize();
-    let t = 0.5 * (dir.y() + 1.0);
+    t = 0.5 * (dir.y() + 1.0);
     Color::new(1.0, 1.0, 1.0) * (1.0 - t) + Color::new(0.5, 0.7, 1.0) * t
 }
 
