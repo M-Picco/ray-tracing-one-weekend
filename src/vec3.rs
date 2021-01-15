@@ -106,3 +106,15 @@ impl std::ops::Div<usize> for Vec3 {
         self * (1.0 / rhs as f64)
     }
 }
+
+impl std::ops::Neg for Vec3 {
+    type Output = Vec3;
+
+    fn neg(self) -> Vec3 {
+        Vec3 {
+            x: -self.x(),
+            y: -self.y(),
+            z: -self.z()
+        }
+    }
+}
