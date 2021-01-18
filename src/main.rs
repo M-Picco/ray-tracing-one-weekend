@@ -4,12 +4,13 @@ mod point3;
 mod ray;
 mod hittable;
 mod sphere;
+mod camera;
 
 use color::Color;
 use ray::Ray;
 use hittable::HittableList;
-use vec3::Vec3;
 use point3::Point3;
+use camera::Camera;
 
 /**
  * Determina el color del pixel en base a la incidencia del rayo en la esfera
@@ -38,6 +39,7 @@ fn main() {
     let ratio = 16.0 / 9.0;
     let width = 400;
     let height = (width as f64 / ratio) as usize;
+    let samples_per_pixel = 100;
 
     // world
     let mut world = HittableList::new();
@@ -51,14 +53,7 @@ fn main() {
     ));
 
     // camera
-    let viewport_height = 2.0;
-    let viewport_width = ratio * viewport_height;
-    let focal_length = 1.0;
-
-    let origin = Vec3::origin();
-    let horizontal = Vec3::new(viewport_width, 0.0, 0.0);
-    let vertical = Vec3::new(0.0, viewport_height, 0.0);
-    let lower_left_corner = origin - horizontal / 2 - vertical / 2 - Vec3::new(0.0, 0.0, focal_length);
+    let camera = Camera::new();
 
     // render
 
@@ -67,13 +62,18 @@ fn main() {
     for j in (0..height).rev() {
         eprintln!("\rLines remaining: {}", j);
         for i in 0..width {
-            let u = i as f64 / (width - 1) as f64;
-            let v = j as f64 / (height - 1) as f64;
+            let mut pixel_color = Color::new(0.0, 0.0, 0.0);
 
-            let ray = Ray::new(origin, lower_left_corner + horizontal * u + vertical * v - origin);
+            for _ in 0..samples_per_pixel {
+                let u = (i as f64 + rand::random::<f64>()) / (width - 1) as f64;
+                let v = (j as f64 + rand::random::<f64>()) / (height - 1) as f64;
 
-            let pixel_color = ray_color(&ray, &world);
-            print!("{}", color::encode(&pixel_color));
+                let ray = camera.get_ray(u, v);
+
+                pixel_color += ray_color(&ray, &world);
+            }
+
+            print!("{}", color::encode(&pixel_color, samples_per_pixel));
         }
     }
 }

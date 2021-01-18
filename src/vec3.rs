@@ -118,3 +118,13 @@ impl std::ops::Neg for Vec3 {
         }
     }
 }
+
+impl std::ops::AddAssign for Vec3 {
+    fn add_assign(&mut self, other: Self) {
+        *self = Vec3 {
+            x: self.x + other.x,
+            y: self.y + other.y,
+            z: self.z + other.z
+        }
+    }
+}
