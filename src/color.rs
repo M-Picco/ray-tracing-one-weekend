@@ -2,6 +2,16 @@ use crate::vec3::Vec3;
 
 pub type Color = Vec3;
 
+impl Color {
+    pub fn black() -> Color {
+        Vec3::origin()
+    }
+
+    pub fn white() -> Color {
+        Color::new(1.0, 1.0, 1.0)
+    }
+}
+
 fn clamp(x: f64, min: f64, max: f64) -> f64 {
     if x < min { return min }
     if x > max { return max }

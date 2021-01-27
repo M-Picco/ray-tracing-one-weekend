@@ -1,3 +1,5 @@
+use rand::{thread_rng, Rng};
+
 #[derive(Copy, Clone)]
 pub struct Vec3 {
     x: f64,
@@ -8,6 +10,26 @@ pub struct Vec3 {
 impl Vec3 {
     pub fn origin() -> Vec3 {
         Vec3 { x: 0.0, y: 0.0, z: 0.0 }
+    }
+
+    pub fn random(min: f64, max: f64) -> Vec3 {
+        let mut rng = thread_rng();
+
+        Vec3 {
+            x: rng.gen_range(min, max),
+            y: rng.gen_range(min, max),
+            z: rng.gen_range(min, max)
+        }
+    }
+
+    pub fn random_in_unit_sphere() -> Vec3 {
+        loop {
+            let p = Vec3::random(-1.0, 1.0);
+            if p.squared_norm() >= 1.0 {
+                continue;
+            }
+            return p;
+        }
     }
 
     pub fn new(x: f64, y: f64, z: f64) -> Vec3 {

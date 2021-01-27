@@ -11,6 +11,7 @@ use ray::Ray;
 use hittable::HittableList;
 use point3::Point3;
 use camera::Camera;
+use vec3::Vec3;
 
 /**
  * Determina el color del pixel en base a la incidencia del rayo en la esfera
@@ -18,18 +19,24 @@ use camera::Camera;
  *  - Si incide, se usa la normal a la superficie en el punto donde incide el rayo
  * y se arma un gradiente en base a las componentes de la normal
 */
-fn ray_color(ray: &Ray, world: &HittableList) -> Color {
+fn ray_color(ray: &Ray, world: &HittableList, depth: i32) -> Color {
+    if depth <= 0 {
+        return Color::black();
+    }
+
     let res = world.hit(ray, 0.0, f64::INFINITY);
 
     return match res {
         Some(rec) => {
-            let color = Color::new(1.0, 1.0, 1.0);
-            return (rec.normal + color) * 0.5;
+            let target = rec.point + rec.normal + Vec3::random_in_unit_sphere();
+            let child_ray = Ray::new(rec.point, target - rec.point);
+
+            return ray_color(&child_ray, world, depth - 1) * 0.5;
         },
         None => {
             let dir = ray.dir().normalize();
             let t = 0.5 * (dir.y() + 1.0);
-            Color::new(1.0, 1.0, 1.0) * (1.0 - t) + Color::new(0.5, 0.7, 1.0) * t
+            Color::white() * (1.0 - t) + Color::new(0.5, 0.7, 1.0) * t
         }
     };
 }
@@ -40,6 +47,7 @@ fn main() {
     let width = 400;
     let height = (width as f64 / ratio) as usize;
     let samples_per_pixel = 100;
+    let max_depth = 50;
 
     // world
     let mut world = HittableList::new();
@@ -70,7 +78,7 @@ fn main() {
 
                 let ray = camera.get_ray(u, v);
 
-                pixel_color += ray_color(&ray, &world);
+                pixel_color += ray_color(&ray, &world, max_depth);
             }
 
             print!("{}", color::encode(&pixel_color, samples_per_pixel));
