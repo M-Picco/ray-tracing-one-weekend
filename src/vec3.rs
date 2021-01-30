@@ -32,6 +32,10 @@ impl Vec3 {
         }
     }
 
+    pub fn random_unit_vector() -> Vec3 {
+        Vec3::random_in_unit_sphere().normalize()
+    }
+
     pub fn new(x: f64, y: f64, z: f64) -> Vec3 {
         Vec3 { x, y, z }
     }

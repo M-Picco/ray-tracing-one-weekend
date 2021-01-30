@@ -24,11 +24,11 @@ fn ray_color(ray: &Ray, world: &HittableList, depth: i32) -> Color {
         return Color::black();
     }
 
-    let res = world.hit(ray, 0.0, f64::INFINITY);
+    let res = world.hit(ray, 0.001, f64::INFINITY);
 
     return match res {
         Some(rec) => {
-            let target = rec.point + rec.normal + Vec3::random_in_unit_sphere();
+            let target = rec.point + rec.normal + Vec3::random_unit_vector();
             let child_ray = Ray::new(rec.point, target - rec.point);
 
             return ray_color(&child_ray, world, depth - 1) * 0.5;
