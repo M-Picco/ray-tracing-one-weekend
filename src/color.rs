@@ -24,13 +24,13 @@ pub fn encode(color: &Color, samples: usize) -> String {
     let mut b = color.z();
 
     let scale = 1.0 / samples as f64;
-    r *= scale;
-    g *= scale;
-    b *= scale;
+    r = (r * scale).sqrt();
+    g = (g * scale).sqrt();
+    b = (b * scale).sqrt();
 
-    let ir: u8 = (255.99 * clamp(r, 0.0, 0.999)) as u8;
-    let ig: u8 = (255.99 * clamp(g, 0.0, 0.999)) as u8;
-    let ib: u8 = (255.99 * clamp(b, 0.0, 0.999)) as u8;
+    let ir: u8 = (256.0 * clamp(r, 0.0, 0.999)) as u8;
+    let ig: u8 = (256.0 * clamp(g, 0.0, 0.999)) as u8;
+    let ib: u8 = (256.0 * clamp(b, 0.0, 0.999)) as u8;
 
     format!("{} {} {}\n", ir, ig, ib)
 }    
