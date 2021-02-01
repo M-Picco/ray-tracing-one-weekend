@@ -5,7 +5,11 @@ mod ray;
 mod hittable;
 mod sphere;
 mod camera;
+mod material;
 
+use crate::material::Metal;
+use std::rc::Rc;
+use crate::material::Lambertian;
 use color::Color;
 use ray::Ray;
 use hittable::HittableList;
@@ -28,10 +32,11 @@ fn ray_color(ray: &Ray, world: &HittableList, depth: i32) -> Color {
 
     return match res {
         Some(rec) => {
-            let target = rec.point + rec.normal + Vec3::random_unit_vector();
-            let child_ray = Ray::new(rec.point, target - rec.point);
-
-            return ray_color(&child_ray, world, depth - 1) * 0.5;
+            let mut attenuation: Color = Color::black();
+            return match rec.material.scatter(ray, &mut attenuation, &rec) {
+                Some(scattered_ray) => attenuation * ray_color(&scattered_ray, world, depth - 1),
+                None => Color::black()
+            }
         },
         None => {
             let dir = ray.dir().normalize();
@@ -51,13 +56,31 @@ fn main() {
 
     // world
     let mut world = HittableList::new();
-    world.add(std::rc::Rc::from(sphere::Sphere::new(
-        Point3::new(0.0, 0.0, -1.0),
-        0.5)
-    ));
-    world.add(std::rc::Rc::from(sphere::Sphere::new(
+
+    let material_ground = Rc::from(Lambertian::new(Color::new(0.8, 0.8, 0.0)));
+    let material_center = Rc::from(Lambertian::new(Color::new(0.7, 0.3, 0.3)));
+    let material_left = Rc::from(Metal::new(Color::new(0.8, 0.8, 0.8)));
+    let material_right = Rc::from(Metal::new(Color::new(0.8, 0.6, 0.2)));
+
+    world.add(Rc::from(sphere::Sphere::new(
         Point3::new(0.0, -100.5, -1.0),
-        100.0)
+        100.0,
+        material_ground)
+    ));
+    world.add(Rc::from(sphere::Sphere::new(
+        Point3::new(0.0, 0.0, -1.0),
+        0.5,
+        material_center)
+    ));
+    world.add(Rc::from(sphere::Sphere::new(
+        Point3::new(-1.0, 0.0, -1.0),
+        0.5,
+        material_left)
+    ));
+    world.add(Rc::from(sphere::Sphere::new(
+        Point3::new(1.0, 0.0, -1.0),
+        0.5,
+        material_right)
     ));
 
     // camera

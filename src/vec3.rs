@@ -75,6 +75,14 @@ impl Vec3 {
             self.y() * other.y() +
             self.z() * other.z()
     }
+
+    pub fn near_zero(&self) -> bool {
+        let s = 1e-8;
+        return 
+            self.x().abs() < s &&
+            self.y().abs() < s &&
+            self.z().abs() < s
+    }
 }
 
 impl std::ops::Add for Vec3 {
@@ -101,6 +109,18 @@ impl std::ops::Sub for Vec3 {
     }
 }
 
+impl std::ops::Mul<Vec3> for Vec3 {
+    type Output = Vec3;
+
+    fn mul(self, rhs: Vec3) -> Vec3 {
+        Vec3 {
+            x: self.x() * rhs.x(),
+            y: self.y() * rhs.y(),
+            z: self.z() * rhs.z()
+        }
+    }
+}
+
 impl std::ops::Mul<f64> for Vec3 {
     type Output = Vec3;
 
@@ -110,6 +130,14 @@ impl std::ops::Mul<f64> for Vec3 {
             y: self.y() * rhs,
             z: self.z() * rhs
         }
+    }
+}
+
+impl std::ops::Mul<Vec3> for f64 {
+    type Output = Vec3;
+
+    fn mul(self, rhs: Vec3) -> Vec3 {
+        rhs * self
     }
 }
 

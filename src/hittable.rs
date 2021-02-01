@@ -1,22 +1,25 @@
-use super::point3::Point3;
-use super::vec3::Vec3;
-use super::ray::Ray;
+use crate::material::Material;
+use crate::point3::Point3;
+use crate::vec3::Vec3;
+use crate::ray::Ray;
 use std::rc::Rc;
 
 pub struct HitRecord {
     pub point: Point3,
     pub normal: Vec3,
     pub t: f64,
-    pub is_outward: bool
+    pub is_outward: bool,
+    pub material: Rc<dyn Material>
 }
 
 impl HitRecord {
-    pub fn create(point: Point3, t: f64, ray: &Ray, normal: Vec3) -> HitRecord {
+    pub fn create(point: Point3, t: f64, ray: &Ray, normal: Vec3, material: Rc<dyn Material>) -> HitRecord {
         let mut record = HitRecord {
             point,
             normal,
             t,
-            is_outward: false
+            is_outward: false,
+            material
         };
         record.set_face_normal(ray, &normal);
         record
