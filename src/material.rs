@@ -45,7 +45,7 @@ impl Metal {
 impl Material for Metal {
     fn scatter(&self, ray: &Ray, attenuation: &mut Color, record: &HitRecord) -> Option<Ray> {
         // v - 2 * dot(v,n) * n
-        let reflected = ray.dir() - record.normal * ray.dir().dot(&record.normal) * 2.0;        
+        let reflected = ray.dir().reflect(&record.normal);
         let scattered = Ray::new(record.point, reflected + self.fuzz * Vec3::random_in_unit_sphere());
 
         *attenuation = self.albedo;
@@ -67,6 +67,15 @@ impl Dielectric {
     }
 }
 
+impl Dielectric {
+    fn reflectance(cosine: f64, ref_idx: f64) -> f64 {
+        // Schlick's approximation
+        let mut r0 = (1.0 - ref_idx) / (1.0 + ref_idx);
+        r0 = r0 * r0;
+        r0 + (1.0 - r0) * f64::powi(1.0 - cosine, 5)
+    }
+}
+
 impl Material for Dielectric {
     fn scatter(&self, ray: &Ray, attenuation: &mut Color, record: &HitRecord) -> Option<Ray> {
         *attenuation = Color::white();
@@ -77,14 +86,19 @@ impl Material for Dielectric {
         }
         
         let unit_dir = ray.dir().normalize();
-
-        // refract
         let cos_theta = f64::min((-unit_dir).dot(&record.normal), 1.0);
-        let r_out_perp = refraction_ratio * (unit_dir + cos_theta * record.normal);
-        let r_out_parallel = -(1.0 - r_out_perp.squared_norm()).abs().sqrt() * record.normal;
-        let refracted = r_out_perp + r_out_parallel;
+        let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
+        let cannot_refract = refraction_ratio * sin_theta > 1.0;
 
-        let scattered = Ray::new(record.point, refracted);
+        let reflectance = Dielectric::reflectance(cos_theta, refraction_ratio);
+
+        let direction = if cannot_refract || reflectance > rand::random::<f64>() {
+            unit_dir.reflect(&record.normal)
+        } else {
+            unit_dir.refract(&record.normal, refraction_ratio)
+        };
+
+        let scattered = Ray::new(record.point, direction);
 
         Some(scattered)
     }
