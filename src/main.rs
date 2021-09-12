@@ -62,7 +62,7 @@ fn main() {
     let material_ground = Rc::from(Lambertian::new(Color::new(0.8, 0.8, 0.0)));
     let material_center = Rc::from(Lambertian::new(Color::new(0.1, 0.2, 0.5)));
     let material_left = Rc::from(Dielectric::new(1.5));
-    let material_right = Rc::from(Metal::new(Color::new(0.8, 0.6, 0.2), 1.0));
+    let material_right = Rc::from(Metal::new(Color::new(0.8, 0.6, 0.2), 0.0));
 
     world.add(Rc::from(sphere::Sphere::new(
         Point3::new(0.0, -100.5, -1.0),
@@ -81,7 +81,7 @@ fn main() {
     ));
     world.add(Rc::from(sphere::Sphere::new(
         Point3::new(-1.0, 0.0, -1.0),
-        -0.4,
+        -0.45,
         material_left.clone())
     ));
     world.add(Rc::from(sphere::Sphere::new(
@@ -91,7 +91,13 @@ fn main() {
     ));
 
     // camera
-    let camera = Camera::new(90.0, aspect_ratio);
+    let camera = Camera::new(
+        Point3::new(-2.0, 2.0, 1.0),
+        Point3::new(0.0, 0.0, -1.0),
+        Vec3::new(0.0, 1.0, 0.0),
+        20.0,
+        aspect_ratio
+    );
 
     // render
 
