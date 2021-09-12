@@ -32,6 +32,24 @@ impl Vec3 {
         }
     }
 
+    pub fn random_in_unit_disk() -> Vec3 {
+        let mut rng = thread_rng();
+
+        loop {
+            let p = Vec3::new(
+                rng.gen_range(-1.0, 1.0), 
+                rng.gen_range(-1.0, 1.0),
+                0.0
+            );
+
+            if p.squared_norm() >= 1.0 {
+                continue;
+            }
+
+            return p;
+        }
+    }
+
     pub fn random_unit_vector() -> Vec3 {
         Vec3::random_in_unit_sphere().normalize()
     }
