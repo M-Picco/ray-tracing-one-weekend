@@ -114,14 +114,24 @@ fn random_scene() -> HittableList {
         Rc::new(Dielectric::new(1.5))
     )));
     world.add(Rc::new(sphere::Sphere::new(
-        Point3::new(-4.0, 1.0, 0.0),
+        Point3::new(1.5, 0.75, 5.0),
+        0.75,
+        Rc::new(Dielectric::new(1.25))
+    )));
+    world.add(Rc::new(sphere::Sphere::new(
+        Point3::new(-6.3, 1.0, 0.0),
         1.0,
         Rc::new(Lambertian::new(Color::new(0.4, 0.2, 0.1)))
     )));
     world.add(Rc::new(sphere::Sphere::new(
-        Point3::new(4.0, 1.0, 0.0),
+        Point3::new(4.0, 1.0, 1.5),
         1.0,
         Rc::new(Metal::new(Color::new(0.7, 0.6, 0.5), 0.0))
+    )));
+    world.add(Rc::new(sphere::Sphere::new(
+        Point3::new(0.0, 3.0, -5.0),
+        3.0,
+        Rc::new(Metal::new(Color::new(0.9, 0.80, 0.75), 0.0))
     )));
 
 
@@ -133,16 +143,16 @@ fn main() {
     let aspect_ratio = 16.0 / 9.0;
     let width = 1200;
     let height = (width as f64 / aspect_ratio) as usize;
-    let samples_per_pixel = 10;
+    let samples_per_pixel = 50;
     let max_depth = 50;
 
     // world
     let world = random_scene();
 
     // camera
-    let lookfrom = Point3::new(13.0, 2.0, 3.0);
+    let lookfrom = Point3::new(15.0, 3.0, 10.0);
     let lookat = Point3::origin();
-    let vup = Vec3::new(0.0, 1.0, 0.0);
+    let vup = Vec3::new(0.5, 1.0, 0.0);
     let dist_to_focus = 10.0;
     let aperture = 0.1;
     let camera = Camera::new(
